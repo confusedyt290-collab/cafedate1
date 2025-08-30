@@ -1,0 +1,1808 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CafeDate - Find Your Perfect Match</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        :root {
+            --primary: #8B4513;
+            --secondary: #FF6B6B;
+            --accent: #D4A76A;
+            --light: #FFF5EB;
+            --dark: #4A2C2A;
+            --success: #4CD964;
+            --warning: #FFCC00;
+            --info: #5AC8FA;
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--primary), var(--dark));
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: var(--dark);
+            position: relative;
+            overflow: hidden;
+        }
+
+        #threejs-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+
+        .floating-element {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            z-index: -1;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 400px;
+            height: 90vh;
+            background: var(--light);
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .screen {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            padding: 20px;
+            display: none;
+            flex-direction: column;
+            transition: transform 0.5s;
+            background: var(--light);
+        }
+
+        .active {
+            display: flex;
+        }
+
+        /* Login Screen */
+        #login-screen {
+            text-align: center;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(45deg, var(--primary), var(--accent));
+            color: white;
+        }
+
+        .logo {
+            font-size: 42px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .logo i {
+            color: var(--light);
+            margin-right: 10px;
+        }
+
+        .tagline {
+            font-size: 16px;
+            margin-bottom: 30px;
+        }
+
+        .login-form {
+            width: 100%;
+            padding: 0 20px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 15px 20px;
+            border: none;
+            border-radius: 50px;
+            background: rgba(255, 255, 255, 0.9);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            font-size: 16px;
+            outline: none;
+        }
+
+        .input-group i {
+            position: absolute;
+            right: 20px;
+            top: 15px;
+            color: var(--primary);
+        }
+
+        .btn {
+            padding: 15px 40px;
+            border: none;
+            border-radius: 50px;
+            background: var(--secondary);
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(139, 69, 19, 0.4);
+            transition: all 0.3s;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(139, 69, 19, 0.6);
+        }
+
+        .signup-link {
+            margin-top: 20px;
+            font-size: 14px;
+        }
+
+        .signup-link a {
+            color: var(--light);
+            font-weight: 600;
+        }
+
+        /* Profile Screen */
+        #profile-screen {
+            padding: 0;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            background: white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            border-radius: 0 0 15px 15px;
+            z-index: 10;
+        }
+
+        .header h2 {
+            font-size: 20px;
+            color: var(--primary);
+        }
+
+        .profile-stack {
+            flex: 1;
+            position: relative;
+            padding: 20px 10px;
+        }
+
+        .profile-card {
+            position: absolute;
+            width: calc(100% - 20px);
+            height: calc(100% - 40px);
+            display: flex;
+            flex-direction: column;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            transition: transform 0.3s;
+        }
+
+        .profile-img {
+            width: 100%;
+            height: 70%;
+            object-fit: cover;
+        }
+
+        .profile-info {
+            padding: 15px;
+        }
+
+        .profile-name {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .profile-age {
+            color: var(--primary);
+            font-weight: 500;
+        }
+
+        .profile-bio {
+            color: #666;
+            margin-top: 5px;
+            font-size: 14px;
+        }
+
+        .profile-interests {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .interest {
+            background: var(--accent);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 12px;
+        }
+
+        .profile-distance {
+            margin-top: 10px;
+            font-size: 12px;
+            color: #888;
+            display: flex;
+            align-items: center;
+        }
+
+        .action-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            padding: 20px 0;
+        }
+
+        .action-btn {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .skip {
+            background: #f8f8f8;
+            color: var(--primary);
+        }
+
+        .superlike {
+            background: var(--info);
+            color: white;
+        }
+
+        .like {
+            background: var(--secondary);
+            color: white;
+        }
+
+        .action-btn:hover {
+            transform: scale(1.1);
+        }
+
+        /* Matches Screen */
+        #matches-screen {
+            padding: 0;
+        }
+
+        .matches-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 10px;
+        }
+
+        .match-card {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            background: white;
+            border-radius: 15px;
+            margin-bottom: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .match-img {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-right: 15px;
+        }
+
+        .match-info {
+            flex: 1;
+        }
+
+        .match-name {
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .match-last-message {
+            font-size: 12px;
+            color: #888;
+            margin-top: 5px;
+        }
+
+        .match-time {
+            font-size: 10px;
+            color: #aaa;
+        }
+
+        /* Chat Screen */
+        #chat-screen {
+            padding: 0;
+        }
+
+        .chat-header {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            background: white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            border-radius: 0 0 15px 15px;
+        }
+
+        .chat-header img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 15px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .message {
+            max-width: 80%;
+            padding: 10px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            position: relative;
+        }
+
+        .received {
+            background: #f1f1f1;
+            align-self: flex-start;
+            border-bottom-left-radius: 5px;
+        }
+
+        .sent {
+            background: var(--secondary);
+            color: white;
+            align-self: flex-end;
+            border-bottom-right-radius: 5px;
+        }
+
+        .message-time {
+            font-size: 10px;
+            margin-top: 5px;
+            opacity: 0.7;
+            text-align: right;
+        }
+
+        .chat-input {
+            display: flex;
+            padding: 10px;
+            background: white;
+            border-top: 1px solid #eee;
+        }
+
+        .chat-input input {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            background: #f8f8f8;
+            border-radius: 20px;
+            outline: none;
+        }
+
+        .chat-input button {
+            background: transparent;
+            border: none;
+            color: var(--primary);
+            font-size: 20px;
+            margin-left: 10px;
+            cursor: pointer;
+        }
+
+        /* Video Call Button */
+        .video-call-btn {
+            position: absolute;
+            bottom: 100px;
+            right: 20px;
+            background: var(--secondary);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 50px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 5px 15px rgba(255, 107, 107, 0.4);
+            cursor: pointer;
+            display: none;
+            z-index: 20;
+        }
+
+        /* Date Planning */
+        .date-planning {
+            position: absolute;
+            bottom: 100px;
+            left: 20px;
+            background: var(--success);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 50px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 5px 15px rgba(76, 217, 100, 0.4);
+            cursor: pointer;
+            display: none;
+            z-index: 20;
+        }
+
+        /* Subscription Screen */
+        #subscription-screen {
+            text-align: center;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(45deg, var(--primary), var(--accent));
+            color: white;
+        }
+
+        .subscription-card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            color: var(--dark);
+            width: 90%;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .subscription-card h2 {
+            color: var(--primary);
+            margin-bottom: 20px;
+        }
+
+        .price {
+            font-size: 42px;
+            font-weight: 700;
+            color: var(--secondary);
+            margin: 20px 0;
+        }
+
+        .features {
+            text-align: left;
+            margin: 20px 0;
+        }
+
+        .feature {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .feature i {
+            color: var(--success);
+            margin-right: 10px;
+        }
+
+        /* Navigation */
+        .nav {
+            display: flex;
+            justify-content: space-around;
+            padding: 15px;
+            background: white;
+            border-top: 1px solid #eee;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #ccc;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .nav-item.active {
+            color: var(--primary);
+        }
+
+        .nav-item i {
+            font-size: 20px;
+        }
+
+        .nav-item span {
+            font-size: 12px;
+            margin-top: 5px;
+        }
+
+        .nav-item:hover {
+            color: var(--primary);
+        }
+
+        /* Coffee elements */
+        .coffee-element {
+            position: absolute;
+            font-size: 24px;
+            color: var(--accent);
+            opacity: 0.7;
+            z-index: 0;
+        }
+
+        /* Badge */
+        .badge {
+            background: var(--secondary);
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 12px;
+            position: absolute;
+            top: -5px;
+            right: -5px;
+        }
+
+        /* Liked Users Screen */
+        #liked-screen {
+            padding: 0;
+        }
+
+        .liked-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 10px;
+        }
+
+        .liked-user-card {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            background: white;
+            border-radius: 15px;
+            margin-bottom: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .liked-user-img {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-right: 15px;
+        }
+
+        .liked-user-info {
+            flex: 1;
+        }
+
+        .liked-user-name {
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .liked-user-status {
+            font-size: 12px;
+            color: #888;
+            margin-top: 5px;
+        }
+
+        .match-status {
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 12px;
+            background: var(--info);
+            color: white;
+        }
+
+        /* Video Call Screen */
+        #video-call-screen {
+            padding: 0;
+            background: black;
+        }
+
+        .video-container {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .remote-video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .local-video {
+            position: absolute;
+            width: 120px;
+            height: 160px;
+            bottom: 20px;
+            right: 20px;
+            border-radius: 10px;
+            border: 2px solid white;
+            object-fit: cover;
+        }
+
+        .call-controls {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.7);
+        }
+
+        .call-btn {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 20px;
+            cursor: pointer;
+        }
+
+        .end-call {
+            background: var(--secondary);
+            color: white;
+        }
+
+        .mute-call {
+            background: white;
+            color: var(--dark);
+        }
+
+        .video-toggle {
+            background: white;
+            color: var(--dark);
+        }
+
+        /* Date Planning Modal */
+        .date-modal {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: white;
+            border-radius: 20px 20px 0 0;
+            padding: 20px;
+            box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.1);
+            z-index: 100;
+            transform: translateY(100%);
+            transition: transform 0.3s ease-out;
+        }
+
+        .date-modal.show {
+            transform: translateY(0);
+        }
+
+        .date-modal h3 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: var(--primary);
+        }
+
+        .date-option {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            background: #f8f8f8;
+            border-radius: 15px;
+            margin-bottom: 10px;
+            cursor: pointer;
+        }
+
+        .date-option i {
+            margin-right: 15px;
+            color: var(--primary);
+            font-size: 20px;
+        }
+
+        .date-option span {
+            font-weight: 500;
+        }
+
+        /* Responsive adjustments */
+        @media (max-height: 700px) {
+            .container {
+                height: 95vh;
+            }
+            
+            .profile-img {
+                height: 65%;
+            }
+        }
+
+        /* Animation */
+        @keyframes float {
+            0% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-10px) rotate(5deg); }
+            100% { transform: translateY(0) rotate(0deg); }
+        }
+
+        .floating {
+            animation: float 5s ease-in-out infinite;
+        }
+
+        /* Swipe actions */
+        .swipe-left {
+            transform: translateX(-100vw) rotate(-30deg);
+            opacity: 0;
+            transition: all 0.5s;
+        }
+
+        .swipe-right {
+            transform: translateX(100vw) rotate(30deg);
+            opacity: 0;
+            transition: all 0.5s;
+        }
+
+        /* Boost button */
+        .boost-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: var(--warning);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            cursor: pointer;
+            z-index: 11;
+        }
+    </style>
+</head>
+<body>
+    <!-- Three.js Container -->
+    <div id="threejs-container"></div>
+
+    <!-- Floating background elements -->
+    <div class="floating-element" style="width: 100px; height: 100px; top: 10%; left: 10%;"></div>
+    <div class="floating-element" style="width: 150px; height: 150px; bottom: 20%; right: 15%;"></div>
+    <div class="floating-element" style="width: 80px; height: 80px; top: 30%; right: 25%;"></div>
+    <div class="floating-element" style="width: 120px; height: 120px; bottom: 10%; left: 20%;"></div>
+
+    <div class="container">
+        <!-- Coffee elements for decoration -->
+        <div class="coffee-element floating" style="top: 50px; left: 30px; transform: rotate(-15deg);">
+            <i class="fas fa-coffee"></i>
+        </div>
+        <div class="coffee-element floating" style="bottom: 100px; right: 40px; transform: rotate(15deg); animation-delay: 0.5s;">
+            <i class="fas fa-mug-hot"></i>
+        </div>
+        <div class="coffee-element floating" style="top: 150px; right: 20px; transform: rotate(25deg); animation-delay: 1s;">
+            <i class="fas fa-cookie"></i>
+        </div>
+
+        <!-- Login Screen -->
+        <div id="login-screen" class="screen active">
+            <div class="logo">
+                <i class="fas fa-mug-hot"></i>CafeDate
+            </div>
+            <div class="tagline">Find your perfect blend of love and conversation</div>
+            <div class="login-form">
+                <div class="input-group">
+                    <input type="text" placeholder="Email or Username">
+                    <i class="fas fa-user"></i>
+                </div>
+                <div class="input-group">
+                    <input type="password" placeholder="Password">
+                    <i class="fas fa-lock"></i>
+                </div>
+                <button class="btn" onclick="showScreen('profile-screen')">Login</button>
+                <div class="signup-link">
+                    Don't have an account? <a href="#" onclick="showScreen('signup-screen')">Sign up</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Signup Screen -->
+        <div id="signup-screen" class="screen">
+            <div class="header">
+                <i class="fas fa-arrow-left" onclick="showScreen('login-screen')"></i>
+                <h2>Create Account</h2>
+                <div></div> <!-- Empty for spacing -->
+            </div>
+            <div style="padding: 20px; flex: 1; overflow-y: auto;">
+                <div class="input-group">
+                    <input type="text" placeholder="Full Name">
+                    <i class="fas fa-user"></i>
+                </div>
+                <div class="input-group">
+                    <input type="email" placeholder="Email">
+                    <i class="fas fa-envelope"></i>
+                </div>
+                <div class="input-group">
+                    <input type="password" placeholder="Password">
+                    <i class="fas fa-lock"></i>
+                </div>
+                <div class="input-group">
+                    <input type="number" placeholder="Age">
+                    <i class="fas fa-birthday-cake"></i>
+                </div>
+                <div class="input-group">
+                    <input type="text" placeholder="Interests (comma separated)">
+                    <i class="fas fa-heart"></i>
+                </div>
+                <button class="btn" style="width: 100%;" onclick="showScreen('profile-screen')">Sign Up</button>
+            </div>
+        </div>
+
+        <!-- Profile Screen -->
+        <div id="profile-screen" class="screen">
+            <div class="header">
+                <i class="fas fa-bars"></i>
+                <h2>CafeDate</h2>
+                <div>
+                    <i class="fas fa-heart" onclick="showScreen('liked-screen')" style="margin-right: 15px;">
+                        <span class="badge" id="liked-count">0</span>
+                    </i>
+                    <i class="fas fa-comments" onclick="showScreen('matches-screen')">
+                        <span class="badge" id="matches-count">0</span>
+                    </i>
+                </div>
+            </div>
+            
+            <div class="boost-btn">
+                <i class="fas fa-bolt"></i> Boost
+            </div>
+            
+            <div class="profile-stack" id="profile-stack">
+                <!-- Profile cards will be added here by JavaScript -->
+            </div>
+            
+            <div class="action-buttons">
+                <div class="action-btn skip" onclick="swipeLeft()">
+                    <i class="fas fa-times"></i>
+                </div>
+                <div class="action-btn superlike" onclick="superLike()">
+                    <i class="fas fa-star"></i>
+                </div>
+                <div class="action-btn like" onclick="swipeRight()">
+                    <i class="fas fa-heart"></i>
+                </div>
+            </div>
+            
+            <div class="nav">
+                <div class="nav-item active">
+                    <i class="fas fa-compass"></i>
+                    <span>Discover</span>
+                </div>
+                <div class="nav-item" onclick="showScreen('matches-screen')">
+                    <i class="fas fa-heart"></i>
+                    <span>Matches</span>
+                </div>
+                <div class="nav-item" onclick="showScreen('liked-screen')">
+                    <i class="fas fa-user-plus"></i>
+                    <span>Liked</span>
+                </div>
+                <div class="nav-item" onclick="showScreen('subscription-screen')">
+                    <i class="fas fa-crown"></i>
+                    <span>Premium</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Liked Users Screen -->
+        <div id="liked-screen" class="screen">
+            <div class="header">
+                <i class="fas fa-arrow-left" onclick="showScreen('profile-screen')"></i>
+                <h2>Liked Users</h2>
+                <div></div>
+            </div>
+            
+            <div class="liked-container" id="liked-container">
+                <!-- Liked users will be added here by JavaScript -->
+            </div>
+            
+            <div class="nav">
+                <div class="nav-item" onclick="showScreen('profile-screen')">
+                    <i class="fas fa-compass"></i>
+                    <span>Discover</span>
+                </div>
+                <div class="nav-item" onclick="showScreen('matches-screen')">
+                    <i class="fas fa-heart"></i>
+                    <span>Matches</span>
+                </div>
+                <div class="nav-item active">
+                    <i class="fas fa-user-plus"></i>
+                    <span>Liked</span>
+                </div>
+                <div class="nav-item" onclick="showScreen('subscription-screen')">
+                    <i class="fas fa-crown"></i>
+                    <span>Premium</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Matches Screen -->
+        <div id="matches-screen" class="screen">
+            <div class="header">
+                <i class="fas fa-arrow-left" onclick="showScreen('profile-screen')"></i>
+                <h2>Matches</h2>
+                <div></div>
+            </div>
+            
+            <div class="matches-container" id="matches-container">
+                <!-- Matches will be added here by JavaScript -->
+            </div>
+            
+            <div class="nav">
+                <div class="nav-item" onclick="showScreen('profile-screen')">
+                    <i class="fas fa-compass"></i>
+                    <span>Discover</span>
+                </div>
+                <div class="nav-item active">
+                    <i class="fas fa-heart"></i>
+                    <span>Matches</span>
+                </div>
+                <div class="nav-item" onclick="showScreen('liked-screen')">
+                    <i class="fas fa-user-plus"></i>
+                    <span>Liked</span>
+                </div>
+                <div class="nav-item" onclick="showScreen('subscription-screen')">
+                    <i class="fas fa-crown"></i>
+                    <span>Premium</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chat Screen -->
+        <div id="chat-screen" class="screen">
+            <div class="chat-header">
+                <i class="fas fa-arrow-left" onclick="showScreen('matches-screen')"></i>
+                <img id="chat-user-img" src="" alt="Profile">
+                <div>
+                    <div class="profile-name" id="chat-user-name"></div>
+                    <div style="font-size: 12px; color: var(--success);" id="chat-user-status">Online</div>
+                </div>
+                <i class="fas fa-video" onclick="startVideoCall()" style="margin-left: auto; margin-right: 15px; font-size: 20px; cursor: pointer;"></i>
+                <i class="fas fa-ellipsis-v"></i>
+            </div>
+            
+            <div class="chat-messages" id="chat-messages">
+                <!-- Messages will be added here by JavaScript -->
+            </div>
+            
+            <div class="chat-input">
+                <input type="text" id="message-input" placeholder="Type a message..." onkeypress="handleKeyPress(event)">
+                <button onclick="sendMessage()"><i class="fas fa-paper-plane"></i></button>
+            </div>
+            
+            <div class="video-call-btn" id="video-call-btn">
+                <i class="fas fa-video"></i>
+                Video Call
+            </div>
+            
+            <div class="date-planning" id="date-planning-btn" onclick="showDateModal()">
+                <i class="fas fa-calendar"></i>
+                Plan a Date
+            </div>
+            
+            <div class="nav">
+                <div class="nav-item" onclick="showScreen('profile-screen')">
+                    <i class="fas fa-compass"></i>
+                    <span>Discover</span>
+                </div>
+                <div class="nav-item" onclick="showScreen('matches-screen')">
+                    <i class="fas fa-heart"></i>
+                    <span>Matches</span>
+                </div>
+                <div class="nav-item active">
+                    <i class="fas fa-comment"></i>
+                    <span>Chat</span>
+                </div>
+                <div class="nav-item" onclick="showScreen('subscription-screen')">
+                    <i class="fas fa-crown"></i>
+                    <span>Premium</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Date Planning Modal -->
+        <div class="date-modal" id="date-modal">
+            <h3>Plan a Date</h3>
+            <div class="date-option" onclick="scheduleDate('coffee')">
+                <i class="fas fa-coffee"></i>
+                <span>Coffee Date</span>
+            </div>
+            <div class="date-option" onclick="scheduleDate('dinner')">
+                <i class="fas fa-utensils"></i>
+                <span>Dinner Date</span>
+            </div>
+            <div class="date-option" onclick="scheduleDate('movie')">
+                <i class="fas fa-film"></i>
+                <span>Movie Night</span>
+            </div>
+            <div class="date-option" onclick="scheduleDate('walk')">
+                <i class="fas fa-walking"></i>
+                <span>Walk in the Park</span>
+            </div>
+            <button class="btn" style="width: 100%; margin-top: 20px;" onclick="hideDateModal()">Cancel</button>
+        </div>
+
+        <!-- Video Call Screen -->
+        <div id="video-call-screen" class="screen">
+            <div class="video-container">
+                <video class="remote-video" id="remote-video" autoplay></video>
+                <video class="local-video" id="local-video" autoplay muted></video>
+            </div>
+            <div class="call-controls">
+                <div class="call-btn mute-call" onclick="toggleMute()">
+                    <i class="fas fa-microphone"></i>
+                </div>
+                <div class="call-btn end-call" onclick="endVideoCall()">
+                    <i class="fas fa-phone"></i>
+                </div>
+                <div class="call-btn video-toggle" onclick="toggleVideo()">
+                    <i class="fas fa-video"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Subscription Screen -->
+        <div id="subscription-screen" class="screen">
+            <div class="header">
+                <i class="fas fa-arrow-left" onclick="showScreen('profile-screen')"></i>
+                <h2>Go Premium</h2>
+                <div></div>
+            </div>
+            
+            <div class="subscription-card">
+                <h2>Unlock All Features</h2>
+                <div class="price">₹29<span>/month</span></div>
+                
+                <div class="features">
+                    <div class="feature">
+                        <i class="fas fa-check-circle"></i>
+                        <span>Unlimited likes</span>
+                    </div>
+                    <div class="feature">
+                        <i class="fas fa-check-circle"></i>
+                        <span>See who liked you</span>
+                    </div>
+                    <div class="feature">
+                        <i class="fas fa-check-circle"></i>
+                        <span>Advanced matching algorithm</span>
+                    </div>
+                    <div class="feature">
+                        <i class="fas fa-check-circle"></i>
+                        <span>5 super likes per day</span>
+                    </div>
+                    <div class="feature">
+                        <i class="fas fa-check-circle"></i>
+                        <span>No ads</span>
+                    </div>
+                    <div class="feature">
+                        <i class="fas fa-check-circle"></i>
+                        <span>Boost your profile once per month</span>
+                    </div>
+                </div>
+                
+                <button class="btn" style="width: 100%;" onclick="subscribe()">Subscribe Now</button>
+                <p style="font-size: 12px; margin-top: 15px;">Auto-renews monthly. Cancel anytime.</p>
+            </div>
+            
+            <div class="nav">
+                <div class="nav-item" onclick="showScreen('profile-screen')">
+                    <i class="fas fa-compass"></i>
+                    <span>Discover</span>
+                </div>
+                <div class="nav-item" onclick="showScreen('matches-screen')">
+                    <i class="fas fa-heart"></i>
+                    <span>Matches</span>
+                </div>
+                <div class="nav-item" onclick="showScreen('liked-screen')">
+                    <i class="fas fa-user-plus"></i>
+                    <span>Liked</span>
+                </div>
+                <div class="nav-item active">
+                    <i class="fas fa-crown"></i>
+                    <span>Premium</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Sample user data (expanded with more profiles)
+        const users = [
+            {
+                id: 1,
+                name: "Emma",
+                age: 25,
+                bio: "Photographer & Travel enthusiast. Love hiking and coffee.",
+                interests: ["Photography", "Travel", "Coffee", "Hiking"],
+                image: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=400&q=80",
+                distance: "2 km away"
+            },
+            {
+                id: 2,
+                name: "Sophia",
+                age: 27,
+                bio: "Software engineer who loves jazz and weekend brunches.",
+                interests: ["Technology", "Music", "Brunch", "Movies"],
+                image: "https://images.unsplash.com/photo-1519764622345-23439dd774f7?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=400&q=80",
+                distance: "5 km away"
+            },
+            {
+                id: 3,
+                name: "Olivia",
+                age: 24,
+                bio: "Art student who enjoys painting and visiting museums.",
+                interests: ["Art", "Museums", "Painting", "Reading"],
+                image: "https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=400&q=80",
+                distance: "3 km away"
+            },
+            {
+                id: 4,
+                name: "Ava",
+                age: 26,
+                bio: "Yoga instructor and wellness coach. Love healthy living.",
+                interests: ["Yoga", "Wellness", "Meditation", "Cooking"],
+                image: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=400&q=80",
+                distance: "4 km away"
+            },
+            {
+                id: 5,
+                name: "Isabella",
+                age: 28,
+                bio: "Marketing manager who loves fashion and exploring new cities.",
+                interests: ["Fashion", "Travel", "Food", "Shopping"],
+                image: "https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=400&q=80",
+                distance: "7 km away"
+            },
+            {
+                id: 6,
+                name: "Mia",
+                age: 23,
+                bio: "Grad student in psychology. Love reading and deep conversations.",
+                interests: ["Psychology", "Books", "Philosophy", "Coffee"],
+                image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=400&q=80",
+                distance: "3 km away"
+            },
+            {
+                id: 7,
+                name: "Charlotte",
+                age: 29,
+                bio: "Architect with a passion for sustainable design and photography.",
+                interests: ["Architecture", "Design", "Photography", "Nature"],
+                image: "https://images.unsplash.com/photo-1527082395-e939b847da0d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=400&q=80",
+                distance: "6 km away"
+            },
+            {
+                id: 8,
+                name: "Amelia",
+                age: 25,
+                bio: "Chef and food blogger. Always looking for new culinary experiences.",
+                interests: ["Cooking", "Food", "Travel", "Blogging"],
+                image: "https://images.unsplash.com/photo-1546961329-78bef0414d7c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=400&q=80",
+                distance: "2 km away"
+            }
+        ];
+
+        // Store liked users and matches
+        let likedUsers = JSON.parse(localStorage.getItem('likedUsers')) || [];
+        let matches = JSON.parse(localStorage.getItem('matches')) || [];
+        let currentUserIndex = 0;
+        let currentChatUser = null;
+        let isVideoCallActive = false;
+
+        // Three.js initialization for 3D background
+        function initThreeJS() {
+            const container = document.getElementById('threejs-container');
+            const scene = new THREE.Scene();
+            const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            const renderer = new THREE.WebGLRenderer({ alpha: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            container.appendChild(renderer.domElement);
+
+            // Add floating shapes
+            const geometry = new THREE.SphereGeometry(0.5, 32, 32);
+            const material = new THREE.MeshPhongMaterial({ 
+                color: 0xD4A76A, 
+                shininess: 100,
+                transparent: true,
+                opacity: 0.7
+            });
+            
+            const shapes = [];
+            for (let i = 0; i < 15; i++) {
+                const shape = new THREE.Mesh(geometry, material.clone());
+                shape.position.x = Math.random() * 10 - 5;
+                shape.position.y = Math.random() * 10 - 5;
+                shape.position.z = Math.random() * 10 - 5;
+                shape.material.color.setHex(Math.random() * 0xFFFFFF);
+                shapes.push(shape);
+                scene.add(shape);
+            }
+
+            // Add ambient light
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+            scene.add(ambientLight);
+
+            // Add directional light
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+            directionalLight.position.set(1, 1, 1);
+            scene.add(directionalLight);
+
+            camera.position.z = 5;
+
+            // Animation
+            function animate() {
+                requestAnimationFrame(animate);
+                
+                shapes.forEach(shape => {
+                    shape.rotation.x += 0.01;
+                    shape.rotation.y += 0.01;
+                    shape.position.x += Math.sin(Date.now() * 0.001 + shape.position.y) * 0.005;
+                    shape.position.y += Math.cos(Date.now() * 0.001 + shape.position.x) * 0.005;
+                });
+
+                renderer.render(scene, camera);
+            }
+
+            animate();
+
+            // Handle window resize
+            window.addEventListener('resize', () => {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            });
+        }
+
+        // Show specific screen
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(screen => {
+                screen.classList.remove('active');
+            });
+            document.getElementById(screenId).classList.add('active');
+            
+            // Show video call and date planning buttons after 7 days (simulated)
+            if (screenId === 'chat-screen') {
+                setTimeout(() => {
+                    document.getElementById('video-call-btn').style.display = 'flex';
+                    document.getElementById('date-planning-btn').style.display = 'flex';
+                }, 2000);
+            }
+            
+            // Initialize profile stack if showing profile screen
+            if (screenId === 'profile-screen') {
+                initializeProfileStack();
+            }
+            
+            // Update liked users screen if showing
+            if (screenId === 'liked-screen') {
+                updateLikedScreen();
+            }
+            
+            // Update matches screen if showing
+            if (screenId === 'matches-screen') {
+                updateMatchesScreen();
+            }
+            
+            // Update badge counts
+            updateBadgeCounts();
+        }
+
+        // Update badge counts
+        function updateBadgeCounts() {
+            document.getElementById('liked-count').textContent = likedUsers.length;
+            document.getElementById('matches-count').textContent = matches.length;
+        }
+
+        // Initialize profile stack with user data
+        function initializeProfileStack() {
+            const profileStack = document.getElementById('profile-stack');
+            profileStack.innerHTML = '';
+            
+            // Filter out already liked users
+            const availableUsers = users.filter(user => 
+                !likedUsers.some(liked => liked.id === user.id)
+            );
+            
+            if (availableUsers.length === 0) {
+                profileStack.innerHTML = `
+                    <div style="text-align: center; padding: 40px;">
+                        <i class="fas fa-users" style="font-size: 50px; color: #ccc; margin-bottom: 20px;"></i>
+                        <h3>No more profiles nearby</h3>
+                        <p>Check back later for new matches!</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            availableUsers.forEach((user, index) => {
+                const profileCard = document.createElement('div');
+                profileCard.classList.add('profile-card');
+                profileCard.dataset.userId = user.id;
+                
+                if (index > 0) {
+                    profileCard.style.zIndex = availableUsers.length - index;
+                    profileCard.style.transform = `scale(${1 - index * 0.05}) translateY(${index * 10}px)`;
+                    profileCard.style.opacity = 1 - index * 0.2;
+                }
+                
+                profileCard.innerHTML = `
+                    <img src="${user.image}" class="profile-img" alt="${user.name}">
+                    <div class="profile-info">
+                        <div class="profile-name">${user.name}, <span class="profile-age">${user.age}</span></div>
+                        <div class="profile-bio">${user.bio}</div>
+                        <div class="profile-interests">
+                            ${user.interests.map(interest => `<span class="interest">${interest}</span>`).join('')}
+                        </div>
+                        <div class="profile-distance">
+                            <i class="fas fa-map-marker-alt"></i> ${user.distance}
+                        </div>
+                    </div>
+                `;
+                
+                profileStack.appendChild(profileCard);
+            });
+            
+            currentUserIndex = 0;
+        }
+
+        // Update liked users screen
+        function updateLikedScreen() {
+            const likedContainer = document.getElementById('liked-container');
+            likedContainer.innerHTML = '';
+            
+            if (likedUsers.length === 0) {
+                likedContainer.innerHTML = `
+                    <div style="text-align: center; padding: 40px;">
+                        <i class="fas fa-heart" style="font-size: 50px; color: #ccc; margin-bottom: 20px;"></i>
+                        <h3>No liked users yet</h3>
+                        <p>Start swiping right to like someone!</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            likedUsers.forEach(user => {
+                const isMatch = matches.some(match => match.id === user.id);
+                
+                const likedCard = document.createElement('div');
+                likedCard.classList.add('liked-user-card');
+                likedCard.innerHTML = `
+                    <img src="${user.image}" class="liked-user-img" alt="${user.name}">
+                    <div class="liked-user-info">
+                        <div class="liked-user-name">${user.name}, ${user.age}</div>
+                        <div class="liked-user-status">
+                            ${isMatch ? 
+                                '<span class="match-status">It\'s a match!</span>' : 
+                                'You liked this profile'}
+                        </div>
+                    </div>
+                    ${isMatch ? 
+                        `<button class="btn" style="padding: 8px 15px; font-size: 14px;" 
+                         onclick="startChat(${user.id})">Message</button>` : 
+                        ''}
+                `;
+                
+                likedContainer.appendChild(likedCard);
+            });
+        }
+
+        // Update matches screen
+        function updateMatchesScreen() {
+            const matchesContainer = document.getElementById('matches-container');
+            matchesContainer.innerHTML = '';
+            
+            if (matches.length === 0) {
+                matchesContainer.innerHTML = `
+                    <div style="text-align: center; padding: 40px;">
+                        <i class="fas fa-heart" style="font-size: 50px; color: #ccc; margin-bottom: 20px;"></i>
+                        <h3>No matches yet</h3>
+                        <p>When you match with someone, they'll appear here!</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            matches.forEach(user => {
+                const matchCard = document.createElement('div');
+                matchCard.classList.add('match-card');
+                matchCard.onclick = () => startChat(user.id);
+                
+                matchCard.innerHTML = `
+                    <img src="${user.image}" class="match-img" alt="${user.name}">
+                    <div class="match-info">
+                        <div class="match-name">${user.name}</div>
+                        <div class="match-last-message">It's a match! Send a message.</div>
+                    </div>
+                    <div class="match-time">Now</div>
+                `;
+                
+                matchesContainer.appendChild(matchCard);
+            });
+        }
+
+        // Start chat with a user
+        function startChat(userId) {
+            const user = users.find(u => u.id === userId);
+            if (!user) return;
+            
+            currentChatUser = user;
+            
+            // Update chat screen with user info
+            document.getElementById('chat-user-img').src = user.image;
+            document.getElementById('chat-user-name').textContent = user.name;
+            
+            // Load messages from localStorage or initialize empty
+            const messages = JSON.parse(localStorage.getItem(`chat-${userId}`)) || [];
+            const chatMessages = document.getElementById('chat-messages');
+            chatMessages.innerHTML = '';
+            
+            messages.forEach(msg => {
+                const messageDiv = document.createElement('div');
+                messageDiv.classList.add('message');
+                messageDiv.classList.add(msg.sender === 'me' ? 'sent' : 'received');
+                messageDiv.innerHTML = `
+                    ${msg.text}
+                    <div class="message-time">${msg.time}</div>
+                `;
+                chatMessages.appendChild(messageDiv);
+            });
+            
+            // Scroll to bottom of chat
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+            
+            showScreen('chat-screen');
+        }
+
+        // Handle key press in message input
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        }
+
+        // Send a message
+        function sendMessage() {
+            if (!currentChatUser) return;
+            
+            const input = document.getElementById('message-input');
+            const messageText = input.value.trim();
+            if (!messageText) return;
+            
+            // Create message object
+            const message = {
+                text: messageText,
+                sender: 'me',
+                time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+            };
+            
+            // Save to localStorage
+            const chatKey = `chat-${currentChatUser.id}`;
+            const messages = JSON.parse(localStorage.getItem(chatKey)) || [];
+            messages.push(message);
+            localStorage.setItem(chatKey, JSON.stringify(messages));
+            
+            // Add to chat UI
+            const chatMessages = document.getElementById('chat-messages');
+            const messageDiv = document.createElement('div');
+            messageDiv.classList.add('message');
+            messageDiv.classList.add('sent');
+            messageDiv.innerHTML = `
+                ${message.text}
+                <div class="message-time">${message.time}</div>
+            `;
+            chatMessages.appendChild(messageDiv);
+            
+            // Clear input and scroll to bottom
+            input.value = '';
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+            
+            // Simulate reply after a delay
+            setTimeout(() => {
+                simulateReply();
+            }, 1000 + Math.random() * 2000);
+        }
+
+        // Simulate a reply from the other user
+        function simulateReply() {
+            if (!currentChatUser) return;
+            
+            const replies = [
+                "That sounds great!",
+                "I'd love to!",
+                "What time were you thinking?",
+                "I know a perfect place for that!",
+                "Can't wait to see you!",
+                "That works for me!",
+                "Sounds like a plan!",
+                "I've been wanting to try that place!"
+            ];
+            
+            const reply = replies[Math.floor(Math.random() * replies.length)];
+            
+            // Create message object
+            const message = {
+                text: reply,
+                sender: 'them',
+                time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+            };
+            
+            // Save to localStorage
+            const chatKey = `chat-${currentChatUser.id}`;
+            const messages = JSON.parse(localStorage.getItem(chatKey)) || [];
+            messages.push(message);
+            localStorage.setItem(chatKey, JSON.stringify(messages));
+            
+            // Add to chat UI
+            const chatMessages = document.getElementById('chat-messages');
+            const messageDiv = document.createElement('div');
+            messageDiv.classList.add('message');
+            messageDiv.classList.add('received');
+            messageDiv.innerHTML = `
+                ${message.text}
+                <div class="message-time">${message.time}</div>
+            `;
+            chatMessages.appendChild(messageDiv);
+            
+            // Scroll to bottom
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        // Show date planning modal
+        function showDateModal() {
+            document.getElementById('date-modal').classList.add('show');
+        }
+
+        // Hide date planning modal
+        function hideDateModal() {
+            document.getElementById('date-modal').classList.remove('show');
+        }
+
+        // Schedule a date
+        function scheduleDate(type) {
+            const dateTypes = {
+                'coffee': 'Coffee Date',
+                'dinner': 'Dinner Date',
+                'movie': 'Movie Night',
+                'walk': 'Walk in the Park'
+            };
+            
+            alert(`You've scheduled a ${dateTypes[type]} with ${currentChatUser.name}!`);
+            hideDateModal();
+            
+            // Add to chat
+            const message = {
+                text: `I'd like to schedule a ${dateTypes[type]} with you!`,
+                sender: 'me',
+                time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+            };
+            
+            const chatKey = `chat-${currentChatUser.id}`;
+            const messages = JSON.parse(localStorage.getItem(chatKey)) || [];
+            messages.push(message);
+            localStorage.setItem(chatKey, JSON.stringify(messages));
+            
+            const chatMessages = document.getElementById('chat-messages');
+            const messageDiv = document.createElement('div');
+            messageDiv.classList.add('message');
+            messageDiv.classList.add('sent');
+            messageDiv.innerHTML = `
+                ${message.text}
+                <div class="message-time">${message.time}</div>
+            `;
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        // Start video call
+        function startVideoCall() {
+            if (isVideoCallActive) return;
+            
+            // For demo purposes, we'll simulate a video call
+            isVideoCallActive = true;
+            showScreen('video-call-screen');
+            
+            // Simulate video call (in a real app, you would use WebRTC)
+            setTimeout(() => {
+                document.getElementById('remote-video').src = "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4";
+                document.getElementById('local-video').src = "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4";
+            }, 1000);
+        }
+
+        // End video call
+        function endVideoCall() {
+            isVideoCallActive = false;
+            showScreen('chat-screen');
+        }
+
+        // Toggle mute
+        function toggleMute() {
+            const micIcon = document.querySelector('.mute-call i');
+            if (micIcon.classList.contains('fa-microphone')) {
+                micIcon.classList.remove('fa-microphone');
+                micIcon.classList.add('fa-microphone-slash');
+            } else {
+                micIcon.classList.remove('fa-microphone-slash');
+                micIcon.classList.add('fa-microphone');
+            }
+        }
+
+        // Toggle video
+        function toggleVideo() {
+            const videoIcon = document.querySelector('.video-toggle i');
+            if (videoIcon.classList.contains('fa-video')) {
+                videoIcon.classList.remove('fa-video');
+                videoIcon.classList.add('fa-video-slash');
+            } else {
+                videoIcon.classList.remove('fa-video-slash');
+                videoIcon.classList.add('fa-video');
+            }
+        }
+
+        // Swipe left action
+        function swipeLeft() {
+            const profileStack = document.getElementById('profile-stack');
+            if (profileStack.children.length > 0) {
+                profileStack.children[0].classList.add('swipe-left');
+                setTimeout(() => {
+                    profileStack.removeChild(profileStack.children[0]);
+                    checkEmptyProfiles();
+                }, 500);
+            }
+        }
+
+        // Swipe right action
+        function swipeRight() {
+            const profileStack = document.getElementById('profile-stack');
+            if (profileStack.children.length > 0) {
+                const userId = parseInt(profileStack.children[0].dataset.userId);
+                const user = users.find(u => u.id === userId);
+                
+                if (user) {
+                    // Add to liked users
+                    if (!likedUsers.some(u => u.id === user.id)) {
+                        likedUsers.push(user);
+                        localStorage.setItem('likedUsers', JSON.stringify(likedUsers));
+                        
+                        // Check if it's a match (50% chance for demo)
+                        if (Math.random() > 0.5) {
+                            if (!matches.some(u => u.id === user.id)) {
+                                matches.push(user);
+                                localStorage.setItem('matches', JSON.stringify(matches));
+                                alert(`It's a match with ${user.name}! You can now message each other.`);
+                            }
+                        }
+                        
+                        updateBadgeCounts();
+                    }
+                }
+                
+                profileStack.children[0].classList.add('swipe-right');
+                setTimeout(() => {
+                    profileStack.removeChild(profileStack.children[0]);
+                    checkEmptyProfiles();
+                }, 500);
+            }
+        }
+
+        // Check if no more profiles
+        function checkEmptyProfiles() {
+            const profileStack = document.getElementById('profile-stack');
+            if (profileStack.children.length === 0) {
+                profileStack.innerHTML = `
+                    <div style="text-align: center; padding: 40px;">
+                        <i class="fas fa-users" style="font-size: 50px; color: #ccc; margin-bottom: 20px;"></i>
+                        <h3>No more profiles nearby</h3>
+                        <p>Check back later for new matches!</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Super like action
+        function superLike() {
+            alert('Super like sent! This will get their attention!');
+            swipeRight();
+        }
+
+        // Subscribe action
+        function subscribe() {
+            alert('Redirecting to payment gateway...');
+            // After successful payment
+            showScreen('profile-screen');
+        }
+
+        // Initialize the app
+        window.onload = function() {
+            // Initialize Three.js for 3D background
+            initThreeJS();
+            
+            // Add coffee elements randomly
+            for (let i = 0; i < 10; i++) {
+                const coffeeElement = document.createElement('div');
+                coffeeElement.classList.add('coffee-element');
+                coffeeElement.innerHTML = '<i class="fas fa-' + 
+                    ['coffee', 'mug-hot', 'cookie', 'croissant', 'ice-cream'][Math.floor(Math.random() * 5)] + 
+                    '"></i>';
+                coffeeElement.style.left = Math.random() * 100 + '%';
+                coffeeElement.style.top = Math.random() * 100 + '%';
+                coffeeElement.style.transform = 'rotate(' + (Math.random() * 360) + 'deg)';
+                coffeeElement.style.animationDelay = Math.random() * 2 + 's';
+                coffeeElement.classList.add('floating');
+                document.querySelector('.container').appendChild(coffeeElement);
+            }
+            
+            // Initialize profile stack
+            initializeProfileStack();
+            
+            // Update badge counts
+            updateBadgeCounts();
+            
+            // Add swipe functionality to profile cards
+            let startX = 0;
+            let currentX = 0;
+            let isDragging = false;
+            
+            const profileStack = document.getElementById('profile-stack');
+            
+            profileStack.addEventListener('touchstart', (e) => {
+                if (profileStack.children.length > 0) {
+                    startX = e.touches[0].clientX;
+                    isDragging = true;
+                    profileStack.children[0].style.transition = 'none';
+                }
+            });
+            
+            profileStack.addEventListener('touchmove', (e) => {
+                if (!isDragging) return;
+                currentX = e.touches[0].clientX;
+                const diff = currentX - startX;
+                profileStack.children[0].style.transform = `translateX(${diff}px) rotate(${diff * 0.1}deg)`;
+            });
+            
+            profileStack.addEventListener('touchend', () => {
+                if (!isDragging) return;
+                isDragging = false;
+                profileStack.children[0].style.transition = 'transform 0.3s';
+                
+                const diff = currentX - startX;
+                if (Math.abs(diff) > 100) {
+                    if (diff > 0) {
+                        swipeRight();
+                    } else {
+                        swipeLeft();
+                    }
+                } else {
+                    profileStack.children[0].style.transform = '';
+                }
+            });
+        };
+    </script>
+</body>
+</html>
