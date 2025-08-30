@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CafeDate - Find Your Perfect Match</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="threejs-container"></div>
+
+    <div class="floating-element" style="width: 100px; height: 100px; top: 10%; left: 10%;"></div>
+    <div class="floating-element" style="width: 150px; height: 150px; bottom: 20%; right: 15%;"></div>
+    <div class="floating-element" style="width: 80px; height: 80px; top: 30%; right: 25%;"></div>
+    <div class="floating-element" style="width: 120px; height: 120px; bottom: 10%; left: 20%;"></div>
+
+    <div class="container">
+        <div class="coffee-element floating" style="top: 50px; left: 30px; transform: rotate(-15deg);">
+            <i class="fas fa-coffee"></i>
+        </div>
+        <div class="coffee-element floating" style="bottom: 100px; right: 40px; transform: rotate(15deg); animation-delay: 0.5s;">
+            <i class="fas fa-mug-hot"></i>
+        </div>
+        <div class="coffee-element floating" style="top: 150px; right: 20px; transform: rotate(25deg); animation-delay: 1s;">
+            <i class="fas fa-cookie"></i>
+        </div>
+
+        <div id="login-screen" class="screen active">
+            <div class="logo">
+                <i class="fas fa-mug-hot"></i>CafeDate
+            </div>
+            <div class="tagline">Find your perfect blend of love and conversation</div>
+            <div class="login-form">
+                <div class="input-group">
+                    <input type="text" placeholder="Email or Username">
+                    <i class="fas fa-user"></i>
+                </div>
+                <div class="input-group">
+                    <input type="password" placeholder="Password">
+                    <i class="fas fa-lock"></i>
+                </div>
+                <button class="btn" onclick="showScreen('profile-screen')">Login</button>
+                <div class="signup-link">
+                    Don't have an account? <a href="#" onclick="showScreen('signup-screen')">Sign up</a>
+                </div>
+            </div>
+        </div>
+
+        <div id="signup-screen" class="screen">
+            <div class="header">
+                <i class="fas fa-arrow-left" onclick="showScreen('login-screen')"></i>
+                <h2>Create Account</h2>
+                <div></div>
+            </div>
+            <div style="padding: 20px; flex: 1; overflow-y: auto;">
+                <div class="input-group">
+                    <input type="text" placeholder="Full Name">
+                    <i class="fas fa-user"></i>
+                </div>
+                <div class="input-group">
+                    <input type="email" placeholder="Email">
+                    <i class="fas fa-envelope"></i>
+                </div>
+                <div class="input-group">
+                    <input type="password" placeholder="Password">
+                    <i class="fas fa-lock"></i>
+                </div>
+                <div class="input-group">
+                    <input type="number" placeholder="Age">
+                    <i class="fas fa-birthday-cake"></i>
+                </div>
+                <div class="input-group">
+                    <input type="text" placeholder="Interests (comma separated)">
+                    <i class="fas fa-heart"></i>
+                </div>
+                <button class="btn" style="width: 100%;" onclick="showScreen('profile-screen')">Sign Up</button>
+            </div>
+        </div>
+
+        <div id="profile-screen" class="screen">
+            <div class="header">
+                <i class="fas fa-bars"></i>
+                <h2>CafeDate</h2>
+                <div>
+                    <i class="fas fa-heart" onclick="showScreen('liked-screen')" style="margin-right: 15px;">
+                        <span class="badge" id="liked-count">0</span>
+                    </i>
+                    <i class="fas fa-comments" onclick="showScreen('matches-screen')">
+                        <span class="badge" id="matches-count">0</span>
+                    </i>
+                </div>
+            </div>
+            
+            <div class="boost-btn">
+                <i class="fas fa-bolt"></i> Boost
+            </div>
+            
+            <div class="profile-stack" id="profile-stack">
+                </div>
+            
+            <div class="action-buttons">
+                <div class="action-btn skip" onclick="swipeLeft()">
+                    <i class="fas fa-times"></i>
+                </div>
+                <div class="action-btn superlike" onclick="superLike()">
+                    <i class="fas fa-star"></i>
+                </div>
+                <div class="action-btn like" onclick="swipeRight()">
+                    <i class="fas fa-heart"></i>
+                </div>
+            </div>
+            
+            <div class="nav">
+                <div class="nav-item active">
+                    <i class="fas fa-compass"></i>
+                    <span>Discover</span>
+                </div>
+                <div class="nav-item" onclick="showScreen('matches-screen')">
+                    <i class="fas fa-heart"></i>
+                    <span>Matches</span>
+                </div>
+                <div class="nav-item" onclick="showScreen('liked-screen')">
+                    <i class="fas fa-user-plus"></i>
+                    <span>Liked</span>
+                </div>
+                <div class="nav-item" onclick="showScreen('subscription-screen')">
+                    <i class="fas fa-crown"></i>
+                    <span>Premium</span>
+                </div>
+            </div>
+        </div>
+
+        <div id="liked-screen" class="screen">
+            <div class="header">
+                <i class="fas fa-arrow-left" onclick="showScreen('profile-screen')"></i>
+                <h2>Liked Users</h2>
+                <div></div>
+            </div>
+            
+            <div class="liked-container" id="liked-container">
+                </div>
+            
+            <div class="nav">
+                <div class="nav-item" onclick="showScreen('profile-screen')">
+                    <i class="fas fa-compass"></i>
+                    <span>Discover</span>
+                </div>
+                <div class="nav-item" onclick="showScreen('matches-screen')">
+                    <i class="fas fa-heart"></i>
+                    <span>Matches</span>
+                </div>
+                <div class="nav-item active">
+                    <i class="fas fa-user-plus"></i>
+                    <span>Liked</span>
+                </div>
+                <div class="nav-item" onclick="showScreen('subscription-screen')">
+                    <i class="fas fa-crown"></i>
+                    <span>Premium</span>
+                </div>
+            </div>
+        </div>
+
+        <div id="matches-screen" class="screen">
+            <div class="header">
+                <i class="fas fa-arrow-left" onclick="showScreen('profile-screen')"></i>
+                <h2>Matches</h2>
+                <div></div>
+            </div>
+            
+            <div class="matches-container" id="matches-container">
+                </div>
+            
+            <div class="nav">
+                <div class="nav-item" onclick="showScreen('profile-screen')">
+                    <i class="fas fa-compass"></i>
+                    <span>Discover</span>
+                </div>
+                <div class="nav-item active">
+                    <i class="fas fa-heart"></i>
+                    <span>Matches</span>
+                </div>
+                <div class="nav-item" onclick="showScreen('liked-screen')">
+                    <i class="fas fa-user-plus"></i>
+                    <span>Liked</span>
+                </div>
+                <div class="nav-item" onclick="showScreen('subscription-screen')">
+                    <i class="fas fa-crown"></i>
+                    <span>Premium</span>
+                </div>
+            </div>
+        </div>
+
+        <div id="chat-screen" class="screen">
+            <div class="chat-header">
+                <i class="fas fa-arrow-left" onclick="showScreen('matches-screen')"></i>
+                <img id="chat-user-img" src="" alt="Profile">
+                <div>
+                    <div class="profile-name" id="chat-user-name"></div>
+                    <div style="font-size: 12px; color: var(--success);" id="chat-user-status">Online</div>
+                </div>
+                <i class="fas fa-video" onclick="startVideoCall()" style="margin-left: auto; margin-right: 15px; font-size: 20px; cursor: pointer;"></i>
+                <i class="fas fa-ellipsis-v"></i>
+            </div>
+            
+            <div class="chat-messages" id="chat-messages">
+                </div>
+            
+            <div class="chat-input">
+                <input type="text" id="message-input" placeholder="Type a message..." onkeypress="handleKeyPress(event)">
+                <button onclick="sendMessage()"><i class="fas fa-paper-plane"></i></button>
+            </div>
+            
+            <div class="video-call-btn" id="video-call-btn">
+                <i class="fas fa-video"></i>
+                Video Call
+            </div>
+            
+            <div class="date-planning" id="date-planning-btn" onclick="showDateModal()">
+                <i class="fas fa-calendar"></i>
+                Plan a Date
+            </div>
+            
+            <div class="nav">
+                <div class="nav-item" onclick="showScreen('profile-screen')">
+                    <i class="fas fa-compass"></i>
+                    <span>Discover</span>
+                </div>
+                <div class="nav-item" onclick="showScreen('matches-screen')">
+                    <i class="fas fa-heart"></i>
+                    <span>Matches</span>
+                </div>
+                <div class="nav-item active">
+                    <i class="fas fa-comment"></i>
+                    <span>Chat</span>
+                </div>
+                <div class="nav-item" onclick="showScreen('subscription-screen')">
+                    <i class="fas fa-crown"></i>
+                    <span>Premium</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="date-modal" id="date-modal">
+            <h3>Plan a Date</h3>
+            <div class="date-option" onclick="scheduleDate('coffee')">
+                <i class="fas fa-coffee"></i>
+                <span>Coffee Date</span>
+            </div>
+            <div class="date-option" onclick="scheduleDate('dinner')">
+                <i class="fas fa-utensils"></i>
+                <span>Dinner Date</span>
+            </div>
+            <div class="date-option" onclick="scheduleDate('movie')">
+                <i class="fas fa-film"></i>
+                <span>Movie Night</span>
+            </div>
+            <div class="date-option" onclick="scheduleDate('walk')">
+                <i class="fas fa-walking"></i>
+                <span>Walk in the Park</span>
+            </div>
+            <button class="btn" style="width: 100%; margin-top: 20px;" onclick="hideDateModal()">Cancel</button>
+        </div>
+
+        <div id="video-call-screen" class="screen">
+            <div class="video-container">
+                <video class="remote-video" id="remote-video" autoplay></video>
+                <video class="local-video" id="local-video" autoplay muted></video>
+            </div>
+            <div class="call-controls">
+                <div class="call-btn mute-call" onclick="toggleMute()">
+                    <i class="fas fa-microphone"></i>
+                </div>
+                <div class="call-btn end-call" onclick="endVideoCall()">
+                    <i class="fas fa-phone"></i>
+                </div>
+                <div class="call-btn video-toggle" onclick="toggleVideo()">
+                    <i class="fas fa-video"></i>
+                </div>
+            </div>
+        </div>
+
+        <div id="subscription-screen" class="screen">
+            <div class="header">
+                <i class="fas fa-arrow-left" onclick="showScreen('profile-screen')"></i>
+                <h2>Go Premium</h2>
+                <div></div>
+            </div>
+            
+            <div class="subscription-card">
+                <h2>Unlock All Features</h2>
+                <div class="price">₹29<span>/month</span></div>
+                
+                <div class="features">
+                    <div class="feature">
+                        <i class="fas fa-check-circle"></i>
+                        <span>Unlimited likes</span>
+                    </div>
+                    <div class="feature">
+                        <i class="fas fa-check-circle"></i>
+                        <span>See who liked you</span>
+                    </div>
+                    <div class="feature">
+                        <i class="fas fa-check-circle"></i>
+                        <span>Advanced matching algorithm</span>
+                    </div>
+                    <div class="feature">
+                        <i class="fas fa-check-circle"></i>
+                        <span>5 super likes per day</span>
+                    </div>
+                    <div class="feature">
+                        <i class="fas fa-check-circle"></i>
+                        <span>No ads</span>
+                    </div>
+                    <div class="feature">
+                        <i class="fas fa-check-circle"></i>
+                        <span>Boost your profile once per month</span>
+                    </div>
+                </div>
+                
+                <button class="btn" style="width: 100%;" onclick="subscribe()">Subscribe Now</button>
+                <p style="font-size: 12px; margin-top: 15px;">Auto-renews monthly. Cancel anytime.</p>
+            </div>
+            
+            <div class="nav">
+                <div class="nav-item" onclick="showScreen('profile-screen')">
+                    <i class="fas fa-compass"></i>
+                    <span>Discover</span>
+                </div>
+                <div class="nav-item" onclick="showScreen('matches-screen')">
+                    <i class="fas fa-heart"></i>
+                    <span>Matches</span>
+                </div>
+                <div class="nav-item" onclick="showScreen('liked-screen')">
+                    <i class="fas fa-user-plus"></i>
+                    <span>Liked</span>
+                </div>
+                <div class="nav-item active">
+                    <i class="fas fa-crown"></i>
+                    <span>Premium</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
